@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cartão de Aniversário para minha melhor amiga</title>
     <link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&family=Petemoss&family=Roboto:ital,wght@0,100..900;1,100..900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <style>
@@ -12,6 +12,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Remove o brilho azul ao tocar no telemóvel */
         }
 
         body {
@@ -21,7 +22,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Evita barras de rolagem durante a animação */
+            overflow: hidden; 
+            touch-action: manipulation;
+        }
+
+        /* Container principal que controla a escala global */
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
         }
 
         .card-wrapper {
@@ -29,10 +40,9 @@
             transform: rotate(-90deg);
         }
 
-        /* Cartão ampliado em 1.8x */
         .card {
-            width: 324px;  /* Original: 180px */
-            height: 504px; /* Original: 280px */
+            width: 324px;
+            height: 504px;
             background-color: #fff;
             border: 1px solid;
             transform-style: preserve-3d;
@@ -41,12 +51,13 @@
             box-shadow: inset 9px 0 18px rgba(0, 0, 0, 0.1);
         }
 
+        /* Classe ativa para simular o hover no telemóvel */
+        .envelope.active .card,
         .envelope:hover .card {
             transform: rotateY(-15deg);
             transition-delay: 1750ms;
         }
 
-        /* Card cover styling */
         .card-cover {
             position: absolute;
             inset: 0;
@@ -57,6 +68,7 @@
             transition: transform 500ms 0ms;
         }
 
+        .envelope.active .card-cover,
         .envelope:hover .card-cover {
             transform: rotateY(-135deg);
             transition-delay: 2250ms;
@@ -101,14 +113,6 @@
             line-height: 1;
         }
 
-        .card-title-apostrophe {
-            position: absolute;
-            top: 61px;
-            right: 14px;
-            font-size: 14px;
-        }
-
-        /* Formatação de texto melhorada para o novo tamanho */
         .card-body {
             font-family: "Shantell Sans", serif;
             padding: 24px 28px;
@@ -118,46 +122,38 @@
             flex-direction: column;
             justify-content: flex-start;
             overflow-y: auto; 
+            text-align: left;
         }
-
-        /* Esconde barra de rolagem mas mantém funcional se precisar */
-        .card-body::-webkit-scrollbar { width: 4px; }
-        .card-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
 
         .card-body p {
             font-size: 14px;
             font-weight: 400;
             line-height: 1.45;
             color: #333;
-            text-align: left;
         }
         
         .card-body p+p {
             margin-top: 14px;
         }
 
-        /* Envelope ampliado em 1.8x */
         .envelope {
-            width: 540px;  /* Original: 300px */
-            height: 360px; /* Original: 200px */
+            width: 540px;
+            height: 360px;
             background-color: #fff;
             display: grid;
             place-content: center;
             cursor: pointer;
             position: relative;
             box-shadow: 0 0 0 1px #000;
+            transition: transform 0.3s ease;
         }
 
-        /* Área invisível para manter o cartão aberto enquanto se lê o topo */
+        /* Ajuste fino para a área sensível no telemóvel */
         .envelope::before {
             content: '';
             position: absolute;
-            top: -100%; left: 0; width: 100%; height: 200%;
-            z-index: -10;
-            pointer-events: none;
-        }
-        .envelope:hover::before {
-            pointer-events: auto;
+            top: -100px; left: 0; width: 100%; height: calc(100% + 200px);
+            z-index: -1;
         }
 
         .envelope::after {
@@ -171,15 +167,15 @@
             pointer-events: none;
         }
 
+        .envelope.active .card-wrapper,
         .envelope:hover .card-wrapper {
             animation: show-card 1000ms 600ms forwards;
         }
 
-        .envelope:not(:hover) .card-wrapper {
+        .envelope:not(.active):not(:hover) .card-wrapper {
             animation: hide-card 1000ms forwards;
         }
 
-        /* Keyframes */
         @keyframes show-card {
             50% { transform: translateY(-75%) rotate(-90deg); z-index: -1; }
             100% { transform: translateY(0) rotate(0deg); z-index: 10; }
@@ -191,7 +187,6 @@
             100% { transform: translateY(0) rotate(-90deg); }
         }
 
-        /* Card lid styling */
         .envelope-lid {
             position: absolute;
             inset: 0;
@@ -227,13 +222,14 @@
             transform-origin: top;
         }
 
+        .envelope.active .envelope-lid-secondary,
         .envelope:hover .envelope-lid-secondary {
             transform: rotateX(180deg);
             transition-delay: 100ms;
             animation: open-lid-stacking 500ms forwards;
         }
 
-        .envelope:not(:hover) .envelope-lid-secondary {
+        .envelope:not(.active):not(:hover) .envelope-lid-secondary {
             animation: close-lid-stacking 1250ms forwards;
         }
 
@@ -247,7 +243,6 @@
             100% { z-index: 1; }
         }
 
-        /* Heart Seal com SVG embutido */
         .heart-seal {
             position: absolute;
             top: 37%;
@@ -257,10 +252,11 @@
             height: 58px;
             z-index: 2;
             opacity: 1;
-            transition: opacity 2s ease;
+            transition: opacity 0.5s ease;
             display: flex;
             justify-content: center;
             align-items: center;
+            pointer-events: none;
         }
 
         .heart-seal svg {
@@ -269,67 +265,99 @@
             filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.3));
         }
 
-        /* Responsividade para telas menores (Celulares) */
+        /* ESCALA RESPONSIVA MÁGICA: Ajusta o tamanho sem quebrar o CSS */
         @media (max-width: 600px) {
-            .envelope { transform: scale(0.65); }
+            .envelope {
+                transform: scale(0.6); /* Escala para telas de telemóvel padrão */
+            }
         }
+
         @media (max-width: 400px) {
-            .envelope { transform: scale(0.55); }
+            .envelope {
+                transform: scale(0.5); /* Escala para telemóveis muito pequenos */
+            }
+        }
+        
+        @media (max-height: 600px) and (orientation: landscape) {
+            .envelope {
+                transform: scale(0.45); /* Escala para quando o telemóvel está deitado */
+            }
         }
     </style>
 </head>
 <body>
-    <div class="envelope">
-        <div class="envelope-lid"></div>
-        <div class="envelope-lid envelope-lid-secondary"></div>
-        <div class="card-wrapper">
-            <div class="card">
-                <div class="card-cover">
-                    <div class="card-side card-side-primary">
-                        <h1 class="card-title">
-                            <span class="card-title-secondary">Happy</span>
-                            <span class="card-title-main">birthday <span
-                                    class="card-title-apostrophe"></span></span>
-                            <span class="card-title-secondary">Thaisy</span>
-                        </h1>
+    <div class="main-container">
+        <div class="envelope" id="myEnvelope">
+            <div class="envelope-lid"></div>
+            <div class="envelope-lid envelope-lid-secondary"></div>
+            <div class="card-wrapper">
+                <div class="card">
+                    <div class="card-cover">
+                        <div class="card-side card-side-primary">
+                            <h1 class="card-title">
+                                <span class="card-title-secondary">Happy</span>
+                                <span class="card-title-main">birthday</span>
+                                <span class="card-title-secondary">Thaisy</span>
+                            </h1>
+                        </div>
+                        <div class="card-side card-side-secondary"></div>
                     </div>
-                    <div class="card-side card-side-secondary"></div>
-                </div>
-                <div class="card-body">
-                    <p>Para Thaisy, minha melhor amiga,</p>
-                    <p>Uma das melhores coisas que aconteceram comigo no ano passado foi ter te conhecido. Cada momento ao seu lado foi incrível, e você é uma pessoa que eu não quero perder jamais. De verdade, sua amizade se tornou muito especial para mim.</p>
-                    <p>Hoje você completa seus 16 aninhos, um momento muito importante, e eu quero te desejar um aniversário maravilhoso. Que você tenha muita saúde, muita felicidade e, principalmente, muita paciência para me aguentar por bastante tempo ainda.</p>
-                    <p>Que a nossa amizade continue firme, cheia de risadas, bagunças e momentos que só a gente entende.</p>
-                    <p>Feliz aniversário, minha best friend forever! 🎉💛</p>
+                    <div class="card-body">
+                        <p>Para Thaisy, minha melhor amiga,</p>
+                        <p>Uma das melhores coisas que aconteceram comigo no ano passado foi ter te conhecido. Cada momento ao seu lado foi incrível, e você é uma pessoa que eu não quero perder jamais. De verdade, sua amizade se tornou muito especial para mim.</p>
+                        <p>Hoje você completa seus 16 aninhos, um momento muito importante, e eu quero te desejar um aniversário maravilhoso. Que você tenha muita saúde, muita felicidade e, principalmente, muita paciência para me aguentar por bastante tempo ainda.</p>
+                        <p>Que a nossa amizade continue firme, cheia de risadas, bagunças e momentos que só a gente entende.</p>
+                        <p>Feliz aniversário, minha best friend forever! 🎉💛</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="heart-seal">
-            <!-- Coração em vetor puro (SVG) no lugar da imagem -->
-            <svg viewBox="0 0 32 29.6" fill="#ff004f">
-                <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
-                c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
-            </svg>
+            <div class="heart-seal">
+                <svg viewBox="0 0 32 29.6" fill="#ff004f">
+                    <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
+                    c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
+                </svg>
+            </div>
         </div>
     </div>
 
     <script>
-        const envelope = document.querySelector('.envelope');
+        const envelope = document.getElementById('myEnvelope');
         const heartSeal = document.querySelector('.heart-seal');
-        let timeoutId;
+        let isOpened = false;
 
-        envelope.addEventListener('mouseover', () => {
-            clearTimeout(timeoutId);
-            heartSeal.style.opacity = 0;
+        // Função para abrir/fechar
+        const toggleCard = () => {
+            isOpened = !isOpened;
+            if (isOpened) {
+                envelope.classList.add('active');
+                heartSeal.style.opacity = '0';
+            } else {
+                envelope.classList.remove('active');
+                setTimeout(() => {
+                    if(!envelope.classList.contains('active')) {
+                        heartSeal.style.opacity = '1';
+                    }
+                }, 1000);
+            }
+        };
+
+        // Suporte para Desktop (Mouse)
+        envelope.addEventListener('mouseenter', () => {
+            envelope.classList.add('active');
+            heartSeal.style.opacity = '0';
         });
 
-        envelope.addEventListener('mouseout', () => {
-            timeoutId = setTimeout(() => {
-                heartSeal.style.opacity = 1;
-            }, 1500); 
+        envelope.addEventListener('mouseleave', () => {
+            if (!isOpened) { // Só fecha se não tiver sido "clicado"
+                envelope.classList.remove('active');
+                heartSeal.style.opacity = '1';
+            }
         });
 
-        heartSeal.style.transition = 'opacity 0.3s ease';
+        // Suporte para Telemóvel (Toque/Clique)
+        envelope.addEventListener('click', (e) => {
+            toggleCard();
+        });
     </script>
 </body>
 </html>
